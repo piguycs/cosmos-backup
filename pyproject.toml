@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "Cosmos"
+version = "1.1.1"
+description = ""
+authors = ["ThePiGuy"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+"discord.py" = "^1.7.3"
+discord-py-interactions = "^3.0.2"
+python-dotenv = "^0.19.1"
+requests = "^2.26.0"
+firebase-admin = "^5.0.3"
+discord = "^1.7.3"
+Flask = "^2.0.2"
+
+[tool.poetry.dev-dependencies]
+autopep8 = "^1.5.7"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
