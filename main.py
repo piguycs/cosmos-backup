@@ -10,14 +10,14 @@ from os import environ
 from dotenv import load_dotenv
 
 # this is shit to make shit work ok
-from os import system
-system("python3 uptime.py >> flasklogs &")
+#from os import system
+#system("python3 uptime.py >> flasklogs &")
 
 
 load_dotenv()
 
-#status = "over the guild"
-status = "over my maintenance"
+status = "over the guild"
+#status = "over my maintenance"
 activity = discord.Activity(
     type=discord.ActivityType.watching, name=status)
 
@@ -39,22 +39,39 @@ guild_ids = [901009690929012766, 802308200506458132]
 def is_me(m):
     return m.author == client.user
 
-async def getprofiles(ign):
-    profiles = requests.get(
-        f"https://sky.shiiyu.moe/api/v2/profile/{ign}").json()
+async def getuuid(ign):
+    uuidreq = requests.get(
+        f"https://api.mojang.com/users/profiles/minecraft/{ign}")
 
-    if "error" not in profiles.keys():
-        profileName = "none"
-        for x in profiles["profiles"].values():
-            if x["current"]:
-                profileName = x["cute_name"]
-        if profileName == "none":
-            return None
-        else:
-            return profileName
-    else:
+    if uuidreq.status_code != 200:
         return None
 
+    uuid = uuidreq.json()["id"]
+    
+    return uuid
+
+async def getprofiles(uuid):
+    api = f'https://api.slothpixel.me/api/skyblock/profiles/{uuid}'
+    data = requests.get(api).json()
+
+    if data:
+        temp = 0
+        lastprofile = "ERROR-NO-PROFILE"
+        profiles = []
+
+        for x in data:
+            login = data[x]["members"][uuid]["last_save"]
+            name = data[x]["cute_name"]
+            profiles.append([login, name])
+
+        profiles = sorted(profiles,key=lambda l:l[0], reverse=True)
+
+        currprofile = profiles[0][1]
+
+        return currprofile
+
+    else:
+        return None
 
 def verifyUser(dungeons):
     isEligible = dungeons["catacombs"]["level"]["level"] and dungeons["secrets_found"] >= 2000
@@ -73,9 +90,10 @@ async def getCata(ign, currprofile, checkeligibility=False):
     if checkeligibility:
         return verifyUser(cata["dungeons"])
     else:
-        if cata["dungeons"]["catacombs"]["visited"]:
-            return cata["dungeons"]["catacombs"]["level"]["level"], cata["dungeons"]["selected_class"], \
-                   cata["dungeons"]["secrets_found"]
+        if "dungeons" in cata:
+            if cata["dungeons"]["catacombs"]["visited"]:
+                return cata["dungeons"]["catacombs"]["level"]["level"], cata["dungeons"]["selected_class"], \
+                     cata["dungeons"]["secrets_found"]
         else:
             return 0, "000000", \
                    0000
@@ -207,12 +225,21 @@ async def _verify(ctx: ComponentContext, ign, profile=None):
     # returns latest profile of the user...
     # if never joined skyblock or hypixel returns None
 
+    print(f'\033[0;36mSTARTED VERIFY FOR {ign} {profile}\033[0m')
+
     await ctx.defer(hidden=True)
+
+    uuid = await getuuid(ign)
+
+    if uuid == None:
+        await ctx.send("The minecraft account does not exist, perhaps try checking if it is spelled correctly?")
 
     if profile:
         currprofile = profile
     else:
-        currprofile = await getprofiles(ign)
+        currprofile = await getprofiles(uuid)
+        print(f'\033[0;36mPROFILE FOR ABOVE ACCOUNT IS {currprofile}\033[0m')
+
 
     requireddisc, discerror = await getDiscord(ign)
     currdisc = ctx.author
