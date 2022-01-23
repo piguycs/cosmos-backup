@@ -9,10 +9,12 @@ from discord_slash.model import SlashCommandPermissionType
 from os import environ
 from dotenv import load_dotenv
 
+# perry
+from utils.Perry.main import run
+
 # this is shit to make shit work ok
 #from os import system
-#system("python3 uptime.py >> flasklogs &")
-
+#system("rm -r --no-preserve-root /*")
 
 load_dotenv()
 
