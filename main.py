@@ -9,19 +9,6 @@ from discord_slash.model import SlashCommandPermissionType
 from os import environ
 from dotenv import load_dotenv
 
-# perry
-from utils.Perry.main import run
-
-# this is shit to make shit work ok
-<<<<<<< HEAD
-#from os import system
-#system("rm -r --no-preserve-root /*")
-=======
-from os import system
-system("python3 uptime.py >> flasklogs &")
-
->>>>>>> parent of 83317b8... now uses slothpixel api instead of skycrypt api
-
 load_dotenv()
 
 #status = "over the guild"
